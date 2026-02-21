@@ -6,12 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const { uuid, jobId, candidateId, repoUrl } = body;
+    const { uuid, jobId, candidateId, applicationId, repoUrl } = body;
 
     // Validar que todos los campos estén presentes
-    if (!uuid || !jobId || !candidateId || !repoUrl) {
+    if (!uuid || !jobId || !candidateId || !applicationId || !repoUrl) {
       return NextResponse.json(
-        { error: 'Faltan campos requeridos: uuid, jobId, candidateId, repoUrl' },
+        { error: 'Faltan campos requeridos: uuid, jobId, candidateId, applicationId, repoUrl' },
         { status: 400 }
       );
     }

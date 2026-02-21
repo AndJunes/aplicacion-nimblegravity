@@ -5,11 +5,11 @@ import { CandidateRegistration } from '@/components/CandidateRegistration';
 import { useCandidateContext } from '@/context/CandidateContext';
 
 export default function Home() {
-  const { uuid, candidateId } = useCandidateContext();
+  const { uuid, candidateId, applicationId } = useCandidateContext();
 
   const handleSubmitApplication = async (jobId: string, repositoryUrl: string): Promise<void> => {
-    if (!uuid || !candidateId) {
-      throw new Error('No hay datos de candidato');
+    if (!uuid || !candidateId || !applicationId) {
+      throw new Error('No hay datos de candidato o aplicación');
     }
 
     const response = await fetch('/api/submit-application', {
@@ -19,6 +19,7 @@ export default function Home() {
         uuid,
         jobId,
         candidateId,
+        applicationId,
         repoUrl: repositoryUrl,
       }),
     });

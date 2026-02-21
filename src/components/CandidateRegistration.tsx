@@ -13,50 +13,49 @@ export function CandidateRegistration() {
   const { setCandidateInfo } = useCandidateContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  e.preventDefault();
+  setError(null);
 
-    if (!email.trim() || !name.trim()) {
-      setError('Por favor completa todos los campos');
-      return;
+  if (!email.trim() || !name.trim()) {
+    setError('Por favor completa todos los campos');
+    return;
+  }
+
+  if (!email.includes('@')) {
+    setError('Por favor ingresa un email válido');
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`/api/candidate/get-by-email?email=${encodeURIComponent(email)}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al obtener datos del candidato');
     }
 
-    if (!email.includes('@')) {
-      setError('Por favor ingresa un email válido');
-      return;
-    }
+    const candidateData = await response.json();
+    console.log('Datos recibidos:', candidateData);
+    
+    // Guardar TODOS los datos en el contexto, incluyendo applicationId
+    setCandidateInfo(
+      candidateData.uuid,
+      candidateData.candidateId,
+      candidateData.applicationId, 
+      candidateData.firstName,
+      candidateData.lastName,
+      candidateData.email
+    );
 
-    setIsLoading(true);
-
-    try {
-      // 1. Obtener datos del candidato desde la API
-      const response = await fetch(`/api/candidate/get-by-email?email=${encodeURIComponent(email)}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al obtener datos del candidato');
-      }
-
-      const candidateData = await response.json();
-      
-      // 2. Guardar en el contexto (uuid y candidateId son los que vienen de la API)
-      setCandidateInfo(
-        candidateData.uuid,
-        candidateData.candidateId,
-        candidateData.firstName,
-        candidateData.lastName,
-        candidateData.email
-      );
-
-      // 3. (Opcional) Podrías redirigir al listado de trabajos automáticamente
-      // o simplemente dejar que el componente padre muestre la lista
-      console.log('Candidato registrado:', candidateData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    console.log('Candidato registrado correctamente');
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Error al registrar');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
